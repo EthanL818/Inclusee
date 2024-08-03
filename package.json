@@ -15,7 +15,11 @@
         "panel"
     ],
     "dependencies": {
-        "@swc-react/button": "0.39.4",
+        "@emotion/react": "^11.13.0",
+        "@spectrum-web-components/button": "^0.45.0",
+        "@spectrum-web-components/divider": "^0.45.0",
+        "@spectrum-web-components/theme": "^0.45.0",
+        "@swc-react/button": "^0.39.4",
         "@swc-react/theme": "0.39.4",
         "react": "18.2.0",
         "react-dom": "18.2.0"
