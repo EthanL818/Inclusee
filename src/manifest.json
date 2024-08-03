@@ -1,0 +1,22 @@
+{
+    "testId": "b865da94-9b28-49a7-ac32-d491e294f2a2",
+    "name": "Hackthe6ixproject",
+    "version": "1.0.0",
+    "manifestVersion": 2,
+    "requirements": {
+        "apps": [
+            {
+                "name": "Express",
+                "apiVersion": 1
+            }
+        ]
+    },
+    "entryPoints": [
+        {
+            "type": "panel",
+            "id": "panel1",
+            "main": "index.html",
+            "documentSandbox": "code.js"
+        }
+    ]
+}
