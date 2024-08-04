@@ -11,8 +11,10 @@ async function start() {
     analyzeCurrentPageContrast: analyzeCurrentPageContrast,
     getText: getText,
     recommendTextChanges: recommendTextChanges,
+    getCurrentPage: () => runtime.currentPage // Add a method to get the current page
   };
 
+  console.log("Exposing sandbox API:", sandboxApi); // Debug logging
   runtime.exposeApi(sandboxApi);
 }
 

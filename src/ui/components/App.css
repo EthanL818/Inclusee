@@ -1,5 +1,72 @@
+/* src/ui/components/App.css */
+
 .container {
     margin: 24px;
     display: flex;
     flex-direction: column;
+    gap: 20px;
+}
+
+.readability-analyzer, .contrast-analyzer {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+button:disabled {
+    background-color: #a9a9a9;
+    cursor: not-allowed;
+}
+
+.loader {
+    border: 4px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 4px solid #007bff;
+    width: 20px;
+    height: 20px;
+    animation: spin 1s linear infinite;
+    margin-top: 10px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+ul li {
+    margin-bottom: 10px;
+}
+
+.analysis-result-item {
+    background: #f9f9f9;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+.recommendations {
+    margin-top: 5px;
+}
+
+h3 {
+    margin-top: 20px;
+}
+
+.reanalyze-button {
+    background-color: #28a745;
 }

@@ -9,8 +9,12 @@ const App = ({ addOnUISdk, sandboxProxy }) => {
   return (
     <Theme theme="express" scale="medium" color="light">
       <div className="container">
-        <ContrastAnalyzer sandboxProxy={sandboxProxy} />
-        <ReadabilityAnalyzer sandboxProxy={sandboxProxy} />
+        <div className="contrast-analyzer">
+          <ContrastAnalyzer sandboxProxy={sandboxProxy} />
+        </div>
+        <div className="readability-analyzer">
+          <ReadabilityAnalyzer sandboxProxy={sandboxProxy} />
+        </div>
       </div>
     </Theme>
   );

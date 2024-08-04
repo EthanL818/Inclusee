@@ -1,50 +1,71 @@
 // src/sandbox/readabilityUtil.js
 import { editor } from "express-document-sdk";
 
-// Function to recursively retrieve text from a node and its children
-function getNodeText(node, textSet) {
-  if (node.text) {
-    textSet.add({ text: node.text, fontSize: node.fontSize, fontType: node.fontType });
-  }
-
-  if (node.children && node.children.length > 0) {
-    for (const child of node.children) {
-      getNodeText(child, textSet);
-    }
-  }
-}
-
-// Function to retrieve all text from the current document
-async function getText() {
-  const textSet = new Set();
+// Function to extract text from the document
+export const getText = async () => {
   const pages = editor.documentRoot.pages;
+  const textItems = [];
+
+  console.log("Pages in document:", pages.length); // Debug logging
 
   for (const page of pages) {
+    console.log("Processing page:", page.name); // Debug logging
     for (const node of page.allChildren) {
-      getNodeText(node, textSet);
+      if (node.content && node.content.characters) {
+        console.log("Found text node:", node.content.characters); // Debug logging
+        textItems.push({
+          text: node.content.characters,
+          fontSize: node.characterAttributes.size,
+          fontType: node.characterAttributes.fontFamily,
+          page: page.name,
+        });
+      }
     }
   }
 
-  const textItems = Array.from(textSet);
-  console.log("Text Items found:", textItems);
+  console.log("Extracted text items:", textItems); // Debug logging
   return textItems;
-}
+};
 
-// Function to analyze readability of text
-function analyzeReadability(textItem) {
-  // Example logic to analyze readability
-  return textItem.fontSize >= 14; // Assuming 14px is readable
-}
+// Function to recommend changes based on text readability
+export const recommendTextChanges = (textItem) => {
+  const { fontSize, fontType, text } = textItem;
 
-// Function to recommend changes for text
-function recommendTextChanges(textItem) {
-  if (!analyzeReadability(textItem)) {
-    return {
-      recommendedFontSize: 14,
+  // Basic readability criteria (customize as needed)
+  const minimumReadableFontSize = 12;
+  const preferredFontTypes = ['Arial', 'Verdana', 'Helvetica'];
+
+  let readability = 'Good';
+  let recommendations = null;
+
+  // Check font size
+  if (fontSize < minimumReadableFontSize) {
+    readability = 'Low';
+    recommendations = {
+      recommendedFontSize: minimumReadableFontSize,
+      recommendedFontType: preferredFontTypes.includes(fontType) ? fontType : 'Arial',
+    };
+  }
+
+  // Check font type
+  if (!preferredFontTypes.includes(fontType)) {
+    if (readability === 'Good') {
+      readability = 'Medium';
+    }
+    recommendations = {
+      recommendedFontSize: recommendations ? recommendations.recommendedFontSize : fontSize,
       recommendedFontType: 'Arial',
     };
   }
-  return null;
-}
 
-export { getText, recommendTextChanges };
+  // Check if text is too long for given font size
+  if (text.length > 50 && fontSize < 14) {
+    readability = 'Low';
+    recommendations = {
+      recommendedFontSize: 14,
+      recommendedFontType: preferredFontTypes.includes(fontType) ? fontType : 'Arial',
+    };
+  }
+
+  return recommendations ? { readability, ...recommendations } : { readability };
+};
