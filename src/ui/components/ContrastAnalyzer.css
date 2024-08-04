@@ -179,6 +179,7 @@ li {
 .color-comparison {
   display: flex;
   gap: 10px;
+  margin-right: 10px;
   align-items: center;
 }
 
@@ -198,8 +199,8 @@ li {
 }
 
 .color-block {
-  width: 50px;
-  height: 50px;
+  width: 45px;
+  height: 45px;
   border: 1px solid #e1e1e1;
   position: relative;
   cursor: pointer;
@@ -259,4 +260,99 @@ li {
 .contrast-ratio {
   text-align: center;
   margin-bottom: 15px;
+}
+
+.collapse-button {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 10px;
+}
+
+.collapse-button:hover {
+  color: #0070f3; /* Adjust color as needed */
+}
+
+.collapse-button:focus {
+  outline: none;
+}
+
+.collapse-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #ccc;
+  padding: 10px 0;
+  margin-top: 10px;
+}
+
+.analysis-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.collapse-button {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 10px;
+}
+
+.collapse-button:hover {
+  color: #0070f3; /* Adjust color as needed */
+}
+
+.collapse-button:focus {
+  outline: none;
+}
+
+.analysis-result {
+  padding: 10px 0;
+}
+
+.notification.show {
+  display: block;
+}
+
+/* Additional styles for the existing elements */
+
+.feedback-pass {
+  color: green;
+}
+
+.feedback-fail {
+  color: red;
+}
+
+.tooltip {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 200px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%; /* Position the tooltip above the text */
+  left: 50%;
+  margin-left: -100px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
 }

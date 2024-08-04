@@ -7,6 +7,7 @@ const ContrastAnalyzer = ({ sandboxProxy }) => {
   const [analysisResult, setAnalysisResult] = useState(null);
   const [error, setError] = useState(null);
   const [notification, setNotification] = useState("");
+  const [isCollapsed, setIsCollapsed] = useState(true); // State to manage collapse/expand
 
   async function analyzeContrast() {
     try {
@@ -28,6 +29,7 @@ const ContrastAnalyzer = ({ sandboxProxy }) => {
 
       setAnalysisResult(result);
       setError(null);
+      setIsCollapsed(false); // Ensure the results are shown after analysis
     } catch (error) {
       console.error("Error in analyzeContrast:", error);
       setAnalysisResult(null);
@@ -65,84 +67,91 @@ const ContrastAnalyzer = ({ sandboxProxy }) => {
         <Button className="spectrum-Button" size="m" onClick={analyzeContrast}>
           Analyze Contrast
         </Button>
-        {error && (
-          <div className="error-message">
-            <p>{error}</p>
-          </div>
-        )}
         {analysisResult && (
-          <div className="analysis-result">
-            <h3>Analysis Results</h3>
-            {analysisResult.contrastAnalysis.length > 0 ? (
-              <div>
-                {analysisResult.contrastAnalysis.map((item, index) => (
-                  <div key={index} className="color-comparison-row">
-                    <div className="contrast-ratio">
-                      <strong>Contrast Ratio</strong>{" "}
-                      <strong>{item.contrast.toFixed(2)}</strong> : 1{" "}
-                      <span
-                        className={`feedback-container ${getFeedbackClass(
-                          item.feedback
-                        )}`}
-                      >
-                        ({item.feedback})
-                        <div className="tooltip">
-                          <span className="info-icon">i</span>
-                          <span className="tooltiptext">
-                            {getFeedbackInfo(item.feedback)}
+          <>
+            <div className="collapse-header">
+              <h3 className="analysis-title">Analysis Results</h3>
+              <button
+                className="collapse-button"
+                onClick={() => setIsCollapsed(!isCollapsed)}
+              >
+                {isCollapsed ? "▼" : "▲"}
+              </button>
+            </div>
+            {!isCollapsed && (
+              <div className="analysis-result">
+                {analysisResult.contrastAnalysis.length > 0 ? (
+                  <div>
+                    {analysisResult.contrastAnalysis.map((item, index) => (
+                      <div key={index} className="color-comparison-row">
+                        <div className="contrast-ratio">
+                          <strong>Contrast Ratio</strong>{" "}
+                          <strong>{item.contrast.toFixed(2)}</strong> : 1{" "}
+                          <span
+                            className={`feedback-container ${getFeedbackClass(
+                              item.feedback
+                            )}`}
+                          >
+                            ({item.feedback})
+                            <div className="tooltip">
+                              <span className="info-icon">i</span>
+                              <span className="tooltiptext">
+                                {getFeedbackInfo(item.feedback)}
+                              </span>
+                            </div>
                           </span>
                         </div>
-                      </span>
-                    </div>
 
-                    <div className="color-comparison">
-                      <div className="color-container">
-                        <div
-                          className="color-block"
-                          style={{ backgroundColor: item.color1 }}
-                          onClick={() => copyToClipboard(item.color1)}
-                          data-color={item.color1}
-                          title="Click to copy"
-                        ></div>
+                        <div className="color-comparison">
+                          <div className="color-container">
+                            <div
+                              className="color-block"
+                              style={{ backgroundColor: item.color1 }}
+                              onClick={() => copyToClipboard(item.color1)}
+                              data-color={item.color1}
+                              title="Click to copy"
+                            ></div>
+                          </div>
+                          <div className="color-container">
+                            <div
+                              className="color-block"
+                              style={{ backgroundColor: item.color2 }}
+                              onClick={() => copyToClipboard(item.color2)}
+                              data-color={item.color2}
+                              title="Click to copy"
+                            ></div>
+                          </div>
+                        </div>
                       </div>
-                      <div className="color-container">
-                        <div
-                          className="color-block"
-                          style={{ backgroundColor: item.color2 }}
-                          onClick={() => copyToClipboard(item.color2)}
-                          data-color={item.color2}
-                          title="Click to copy"
-                        ></div>
-                      </div>
-                    </div>
+                    ))}
                   </div>
-                ))}
+                ) : (
+                  <p>No contrast analysis available.</p>
+                )}
+                <h3>Colors:</h3>
+                <ul className="color-list">
+                  {analysisResult.colors.map((color, index) => (
+                    <li key={index} className="color-item">
+                      <div
+                        className="color-block"
+                        style={{ backgroundColor: color }}
+                        onClick={() => copyToClipboard(color)}
+                        data-color={color}
+                        title="Click to copy"
+                      ></div>
+                      <span
+                        className="color-hex"
+                        onClick={() => copyToClipboard(color)}
+                        title="Click to copy"
+                      >
+                        {color}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
               </div>
-            ) : (
-              <p>No contrast analysis available.</p>
             )}
-            <h3>Colors:</h3>
-            <ul className="color-list">
-              {analysisResult.colors.map((color, index) => (
-                <li key={index} className="color-item">
-                  <div
-                    className="color-block"
-                    style={{ backgroundColor: color }}
-                    onClick={() => copyToClipboard(color)}
-                    data-color={color}
-                    title="Click to copy"
-                  ></div>
-                  <span
-                    className="color-hex"
-                    onClick={() => copyToClipboard(color)}
-                    title="Click to copy"
-                  >
-                    {color}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
+          </>
         )}
         <div className={`notification ${notification ? "show" : ""}`}>
           {notification}
