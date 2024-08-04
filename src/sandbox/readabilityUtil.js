@@ -2,70 +2,57 @@
 import { editor } from "express-document-sdk";
 
 // Function to extract text from the document
-export const getText = async () => {
-  const pages = editor.documentRoot.pages;
+export async function extractText(sandboxProxy) {
+  const document = await sandboxProxy.getDocument();
   const textItems = [];
 
-  console.log("Pages in document:", pages.length); // Debug logging
-
-  for (const page of pages) {
-    console.log("Processing page:", page.name); // Debug logging
-    for (const node of page.allChildren) {
-      if (node.content && node.content.characters) {
-        console.log("Found text node:", node.content.characters); // Debug logging
+  document.pages.forEach((page) => {
+    page.allChildren.forEach((child) => {
+      if (child.type === "Text") {
         textItems.push({
-          text: node.content.characters,
-          fontSize: node.characterAttributes.size,
-          fontType: node.characterAttributes.fontFamily,
-          page: page.name,
+          text: child.content,
+          fontSize: child.fontSize,
+          fontType: child.fontFamily,
+          page: page.index,
         });
       }
-    }
-  }
+    });
+  });
 
-  console.log("Extracted text items:", textItems); // Debug logging
   return textItems;
-};
+}
 
-// Function to recommend changes based on text readability
-export const recommendTextChanges = (textItem) => {
-  const { fontSize, fontType, text } = textItem;
+// Function to recommend font changes for better readability
+export function recommendChanges(textItem) {
+  let readability = "Good";
+  let recommendedFontSize = textItem.fontSize;
+  let recommendedFontType = textItem.fontType;
 
-  // Basic readability criteria (customize as needed)
-  const minimumReadableFontSize = 12;
-  const preferredFontTypes = ['Arial', 'Verdana', 'Helvetica'];
-
-  let readability = 'Good';
-  let recommendations = null;
-
-  // Check font size
-  if (fontSize < minimumReadableFontSize) {
-    readability = 'Low';
-    recommendations = {
-      recommendedFontSize: minimumReadableFontSize,
-      recommendedFontType: preferredFontTypes.includes(fontType) ? fontType : 'Arial',
-    };
+  // Check if the text is too small
+  if (textItem.fontSize < 14) {
+    readability = "Poor";
+    recommendedFontSize = 14;
+  } else if (textItem.fontSize < 16) {
+    readability = "Medium";
+    recommendedFontSize = 16;
   }
 
-  // Check font type
-  if (!preferredFontTypes.includes(fontType)) {
-    if (readability === 'Good') {
-      readability = 'Medium';
-    }
-    recommendations = {
-      recommendedFontSize: recommendations ? recommendations.recommendedFontSize : fontSize,
-      recommendedFontType: 'Arial',
-    };
+  // Check if the font type is not suitable for dyslexia
+  const dyslexiaFriendlyFonts = ["Arial", "Verdana", "Tahoma", "Comic Sans MS"];
+  if (!dyslexiaFriendlyFonts.includes(textItem.fontType)) {
+    readability = readability === "Good" ? "Medium" : readability;
+    recommendedFontType = "Arial";
   }
 
-  // Check if text is too long for given font size
-  if (text.length > 50 && fontSize < 14) {
-    readability = 'Low';
-    recommendations = {
-      recommendedFontSize: 14,
-      recommendedFontType: preferredFontTypes.includes(fontType) ? fontType : 'Arial',
-    };
-  }
+  return {
+    readability,
+    recommendedFontSize,
+    recommendedFontType,
+  };
+}
 
-  return recommendations ? { readability, ...recommendations } : { readability };
-};
+// Function to apply recommended changes
+export function applyRecommendations(textItem, recommendations) {
+  textItem.fontSize = recommendations.recommendedFontSize;
+  textItem.fontFamily = recommendations.recommendedFontType;
+}

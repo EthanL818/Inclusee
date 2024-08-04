@@ -2,9 +2,7 @@
 import "@spectrum-web-components/theme/express/scale-medium.js";
 import "@spectrum-web-components/theme/express/theme-light.js";
 import { jsx } from "@emotion/react";
-import { useState } from "react";
 import { Theme } from "@swc-react/theme";
-
 import ContrastAnalyzer from "./ContrastAnalyzer";
 import ReadabilityAnalyzer from "./ReadabilityAnalyzer";
 import "./App.css"; // Ensure App.css is imported
@@ -20,7 +18,7 @@ const App = ({ addOnUISdk, sandboxProxy }) => {
   return (
     <Theme theme="express" scale="medium" color="light">
       <div>
-      <ContrastAnalyzer sandboxProxy={sandboxProxy} onResult={handleAnalysisResult} />
+        <ContrastAnalyzer sandboxProxy={sandboxProxy} />
       </div>
     </Theme>
   );

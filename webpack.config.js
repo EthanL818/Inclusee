@@ -9,46 +9,46 @@ module.exports = {
   devtool: "source-map",
   entry: {
     index: "./src/ui/index.jsx",
-    code: "./src/sandbox/code.js",
+    code: "./src/sandbox/code.js"
   },
   experiments: {
-    outputModule: true,
+    outputModule: true
   },
   output: {
     path: path.resolve(__dirname, "dist"),
     module: true,
-    filename: "[name].js",
+    filename: "[name].js"
   },
   externalsType: "module",
   externalsPresets: { web: true },
   externals: {
     "add-on-sdk-document-sandbox": "add-on-sdk-document-sandbox",
-    "express-document-sdk": "express-document-sdk",
+    "express-document-sdk": "express-document-sdk"
   },
   plugins: [
     new HtmlWebpackPlugin({
       template: "src/index.html",
       scriptLoading: "module",
-      excludeChunks: ["code"],
+      excludeChunks: ["code"]
     }),
     new CopyWebpackPlugin({
-      patterns: [{ from: "src/*.json", to: "[name][ext]" }],
-    }),
+      patterns: [{ from: "src/*.json", to: "[name][ext]" }]
+    })
   ],
   module: {
     rules: [
       {
         test: /\.(js|jsx)$/,
         use: ["babel-loader"],
-        exclude: /node_modules/,
+        exclude: /node_modules/
       },
       {
         test: /(\.css)$/,
-        use: ["style-loader", "css-loader"],
-      },
-    ],
+        use: ["style-loader", "css-loader"]
+      }
+    ]
   },
   resolve: {
-    extensions: [".jsx", ".js", ".css"],
-  },
+    extensions: [".jsx", ".js", ".css"]
+  }
 };
