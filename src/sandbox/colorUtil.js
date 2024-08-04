@@ -17,42 +17,45 @@ function rgbaToHex({ red, green, blue, alpha }) {
   return `#${r}${g}${b}${a}`;
 }
 
-// Function to recursively retrieve colors from a node and its children
-function getNodeColors(node, colorsSet) {
-  console.log("Checking node:", node);
-
+// Function to recursively retrieve colors and sizes from a node and its children
+function getNodeColorsAndSizes(node, data) {
   if (node.fill && node.fill.type === "Color") {
-    console.log("Node has color fill");
     const fillColor = node.fill.color;
     if (fillColor) {
       const hexColor = rgbaToHex(fillColor);
-      console.log("Fill color found:", fillColor);
-      console.log("Converted to hex:", hexColor);
-      colorsSet.add(hexColor);
+      const area = node.boundsLocal.width * node.boundsLocal.height;
+      data.push({ color: hexColor, area });
+    }
+  }
+
+  if (node.stroke && node.stroke.type === "Color") {
+    const strokeColor = node.stroke.color;
+    if (strokeColor) {
+      const hexColor = rgbaToHex(strokeColor);
+      const area = node.boundsLocal.width * node.boundsLocal.height;
+      data.push({ color: hexColor, area });
     }
   }
 
   if (node.children && node.children.length > 0) {
     for (const child of node.children) {
-      getNodeColors(child, colorsSet);
+      getNodeColorsAndSizes(child, data);
     }
   }
 }
 
-// Function to retrieve all colors from the current document
-async function getColors() {
-  const colorsSet = new Set();
+// Function to retrieve all colors and sizes from the current document
+async function getColorsAndSizes() {
+  const data = [];
   const pages = editor.documentRoot.pages;
 
   for (const page of pages) {
     for (const node of page.allChildren) {
-      getNodeColors(node, colorsSet);
+      getNodeColorsAndSizes(node, data);
     }
   }
 
-  const colors = Array.from(colorsSet);
-  console.log("Colors found:", colors);
-  return colors;
+  return data;
 }
 
 // Function to calculate relative luminance
@@ -75,44 +78,34 @@ function calculateContrast(color1, color2) {
   return (Math.max(lum1, lum2) + 0.05) / (Math.min(lum1, lum2) + 0.05);
 }
 
+// Function to analyze contrast between colors on the current page considering node sizes
 async function analyzeCurrentPageContrast() {
-  const colors = await getColors();
-  if (colors.length < 2) {
+  const data = await getColorsAndSizes();
+  if (data.length < 2) {
     return {
-      contrastAnalysis: {
-        lowestContrast: 0,
-        lowestContrastFeedback: "Insufficient colors for contrast analysis",
-        highestContrast: 0,
-        highestContrastFeedback: "Insufficient colors for contrast analysis",
-      },
-      colors: colors,
+      contrastAnalysis: [],
+      colors: [],
     };
   }
 
-  let lowestContrast = Infinity;
-  let highestContrast = 0;
+  const contrastAnalysis = [];
 
-  for (let i = 0; i < colors.length - 1; i++) {
-    for (let j = i + 1; j < colors.length; j++) {
-      const contrast = calculateContrast(colors[i], colors[j]);
-      if (contrast < lowestContrast) {
-        lowestContrast = contrast;
-      }
-      if (contrast > highestContrast) {
-        highestContrast = contrast;
-      }
+  for (let i = 0; i < data.length - 1; i++) {
+    for (let j = i + 1; j < data.length; j++) {
+      const contrast = calculateContrast(data[i].color, data[j].color);
+      contrastAnalysis.push({
+        color1: data[i].color,
+        color2: data[j].color,
+        contrast: contrast,
+        feedback: contrast >= 4.5 ? "Pass" : "Fail",
+      });
     }
   }
 
   return {
-    contrastAnalysis: {
-      lowestContrast: lowestContrast || 0,
-      lowestContrastFeedback: lowestContrast >= 4.5 ? "Pass" : "Fail",
-      highestContrast: highestContrast || 0,
-      highestContrastFeedback: highestContrast >= 4.5 ? "Pass" : "Fail",
-    },
-    colors: colors,
+    contrastAnalysis,
+    colors: data.map((d) => d.color),
   };
 }
 
-export { getColors, analyzeCurrentPageContrast };
+export { getColorsAndSizes, analyzeCurrentPageContrast };
