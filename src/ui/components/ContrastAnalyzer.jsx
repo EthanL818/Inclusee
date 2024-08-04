@@ -8,6 +8,9 @@ const ContrastAnalyzer = ({ sandboxProxy }) => {
   const [error, setError] = useState(null);
   const [notification, setNotification] = useState("");
   const [isCollapsed, setIsCollapsed] = useState(true); // State to manage collapse/expand
+  const [selectedColor, setSelectedColor] = useState(null);
+  const [contrastingColors, setContrastingColors] = useState([]);
+
 
   async function analyzeContrast() {
     try {
@@ -39,6 +42,17 @@ const ContrastAnalyzer = ({ sandboxProxy }) => {
 
   const getFeedbackClass = (feedback) => {
     return feedback === "Pass" ? "feedback-pass" : "feedback-fail";
+  };
+
+  const handleColorSelect = async (color) => {
+    setSelectedColor(color);
+    console.log("Works")
+    try {
+      const generatedColors = await sandboxProxy.generateContrastingColors(color);
+      setContrastingColors(generatedColors);
+    } catch (error) {
+      console.error("Error generating contrasting colors:", error);
+    }
   };
 
   const getFeedbackInfo = (feedback) => {
@@ -107,7 +121,10 @@ const ContrastAnalyzer = ({ sandboxProxy }) => {
                             <div
                               className="color-block"
                               style={{ backgroundColor: item.color1 }}
-                              onClick={() => copyToClipboard(item.color1)}
+                              onClick={() => {
+                                copyToClipboard(item.color1);
+                                handleColorSelect(item.color1);
+                              }}                              
                               data-color={item.color1}
                               title="Click to copy"
                             ></div>
@@ -116,7 +133,10 @@ const ContrastAnalyzer = ({ sandboxProxy }) => {
                             <div
                               className="color-block"
                               style={{ backgroundColor: item.color2 }}
-                              onClick={() => copyToClipboard(item.color2)}
+                              onClick={() => {
+                                copyToClipboard(item.color1);
+                                handleColorSelect(item.color1);
+                              }}                              
                               data-color={item.color2}
                               title="Click to copy"
                             ></div>
@@ -135,13 +155,19 @@ const ContrastAnalyzer = ({ sandboxProxy }) => {
                       <div
                         className="color-block"
                         style={{ backgroundColor: color }}
-                        onClick={() => copyToClipboard(color)}
+                        onClick={() => {
+                          copyToClipboard(color);
+                          handleColorSelect(color);
+                        }}                        
                         data-color={color}
                         title="Click to copy"
                       ></div>
                       <span
                         className="color-hex"
-                        onClick={() => copyToClipboard(color)}
+                        onClick={() => {
+                          copyToClipboard(color);
+                          handleColorSelect(color);
+                        }}                        
                         title="Click to copy"
                       >
                         {color}
@@ -149,6 +175,23 @@ const ContrastAnalyzer = ({ sandboxProxy }) => {
                     </li>
                   ))}
                 </ul>
+                {selectedColor && (
+                  <div className="contrasting-colors-display">
+                    <h3>Suggested Monochromatic Color Scheme for</h3> <h4>{selectedColor}</h4>
+                    <div className="color-list">
+                      {contrastingColors.map((color, index) => (
+                        <div key={index} className="color-item">
+                          <div
+                            className="color-block"
+                            style={{ backgroundColor: color }}
+                          ></div>
+                          <span className="color-hex">{color}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+        )}
               </div>
             )}
           </>
