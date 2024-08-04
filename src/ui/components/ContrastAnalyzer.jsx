@@ -63,7 +63,7 @@ const ContrastAnalyzer = ({ sandboxProxy }) => {
     <Theme theme="express" scale="medium" color="light">
       <div className="container">
         <Button className="spectrum-Button" size="m" onClick={analyzeContrast}>
-          Analyze Contrasts
+          Analyze Contrast
         </Button>
         {error && (
           <div className="error-message">
@@ -78,8 +78,8 @@ const ContrastAnalyzer = ({ sandboxProxy }) => {
                 {analysisResult.contrastAnalysis.map((item, index) => (
                   <div key={index} className="color-comparison-row">
                     <div className="contrast-ratio">
-                      <strong>Contrast Ratio:</strong>{" "}
-                      {item.contrast.toFixed(2) + " : 1"}{" "}
+                      <strong>Contrast Ratio</strong>{" "}
+                      <strong>{item.contrast.toFixed(2)}</strong> : 1{" "}
                       <span
                         className={`feedback-container ${getFeedbackClass(
                           item.feedback
@@ -97,7 +97,6 @@ const ContrastAnalyzer = ({ sandboxProxy }) => {
 
                     <div className="color-comparison">
                       <div className="color-container">
-                        <span className="color-label">Color 1</span>
                         <div
                           className="color-block"
                           style={{ backgroundColor: item.color1 }}
@@ -107,7 +106,6 @@ const ContrastAnalyzer = ({ sandboxProxy }) => {
                         ></div>
                       </div>
                       <div className="color-container">
-                        <span className="color-label">Color 2</span>
                         <div
                           className="color-block"
                           style={{ backgroundColor: item.color2 }}
