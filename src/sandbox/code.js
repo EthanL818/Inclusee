@@ -7,8 +7,7 @@ const { runtime } = addOnSandboxSdk.instance;
 
 async function start() {
   const sandboxApi = {
-    getColors: getColors,
-    analyzeCurrentPageContrast: analyzeCurrentPageContrast,
+    analyzeAllPagesContrast: analyzeAllPagesContrast,
   };
 
   console.log("Exposing sandbox API:", sandboxApi); // Debug logging

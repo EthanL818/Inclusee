@@ -1,7 +1,6 @@
 /* src/ui/components/App.css */
 
 .container {
-    margin: 24px;
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
