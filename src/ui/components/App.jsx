@@ -8,7 +8,7 @@ const App = ({ addOnUISdk, sandboxProxy }) => {
   return (
     <Theme theme="express" scale="medium" color="light">
       <div>
-        <ContrastAnalyzer sandboxProxy={sandboxProxy} />
+        <ContrastAnalyzer sandboxProxy={sandboxProxy} addOnUISdk={addOnUISdk} />
       </div>
     </Theme>
   );

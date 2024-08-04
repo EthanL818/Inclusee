@@ -17,47 +17,6 @@ function rgbaToHex({ red, green, blue, alpha }) {
   return `#${r}${g}${b}${a}`;
 }
 
-// Function to recursively retrieve colors and sizes from a node and its children
-function getNodeColorsAndSizes(node, data) {
-  if (node.fill && node.fill.type === "Color") {
-    const fillColor = node.fill.color;
-    if (fillColor) {
-      const hexColor = rgbaToHex(fillColor);
-      const area = node.boundsLocal.width * node.boundsLocal.height;
-      data.push({ color: hexColor, area });
-    }
-  }
-
-  if (node.stroke && node.stroke.type === "Color") {
-    const strokeColor = node.stroke.color;
-    if (strokeColor) {
-      const hexColor = rgbaToHex(strokeColor);
-      const area = node.boundsLocal.width * node.boundsLocal.height;
-      data.push({ color: hexColor, area });
-    }
-  }
-
-  if (node.children && node.children.length > 0) {
-    for (const child of node.children) {
-      getNodeColorsAndSizes(child, data);
-    }
-  }
-}
-
-// Function to retrieve all colors and sizes from the current document
-async function getColorsAndSizes() {
-  const data = [];
-  const pages = editor.documentRoot.pages;
-
-  for (const page of pages) {
-    for (const node of page.allChildren) {
-      getNodeColorsAndSizes(node, data);
-    }
-  }
-
-  return data;
-}
-
 // Function to calculate relative luminance
 function getLuminance(rgbHex) {
   const r = parseInt(rgbHex.slice(1, 3), 16) / 255;
@@ -78,34 +37,85 @@ function calculateContrast(color1, color2) {
   return (Math.max(lum1, lum2) + 0.05) / (Math.min(lum1, lum2) + 0.05);
 }
 
-// Function to analyze contrast between colors on the current page considering node sizes
-async function analyzeCurrentPageContrast() {
-  const data = await getColorsAndSizes();
-  if (data.length < 2) {
-    return {
-      contrastAnalysis: [],
-      colors: [],
-    };
-  }
+// Function to retrieve all unique colors from all pages
+function getColorsFromAllPages() {
+  const colorSet = new Set();
+  const doc = editor.documentRoot;
 
-  const contrastAnalysis = [];
+  console.log("Total number of pages:", doc.pages.length);
 
-  for (let i = 0; i < data.length - 1; i++) {
-    for (let j = i + 1; j < data.length; j++) {
-      const contrast = calculateContrast(data[i].color, data[j].color);
-      contrastAnalysis.push({
-        color1: data[i].color,
-        color2: data[j].color,
-        contrast: contrast,
-        feedback: contrast >= 4.5 ? "Pass" : "Fail",
-      });
+  for (const page of doc.pages) {
+    console.log("processing page");
+
+    for (const node of page.allChildren) {
+      console.log(node.type);
+      getNodeColors(node, colorSet);
     }
   }
 
-  return {
-    contrastAnalysis,
-    colors: data.map((d) => d.color),
-  };
+  const uniqueColors = Array.from(colorSet);
+  console.log("Unique colors found:", uniqueColors);
+  return uniqueColors;
 }
 
-export { getColorsAndSizes, analyzeCurrentPageContrast };
+// Modified function to add colors to a Set instead of an array
+function getNodeColors(node, colorSet) {
+  if (node.fill && node.fill.type === "Color") {
+    const fillColor = node.fill.color;
+    if (fillColor) {
+      const hexColor = rgbaToHex(fillColor);
+      colorSet.add(hexColor);
+    }
+  }
+
+  if (node.stroke && node.stroke.type === "Color") {
+    const strokeColor = node.stroke.color;
+    if (strokeColor) {
+      const hexColor = rgbaToHex(strokeColor);
+      colorSet.add(hexColor);
+    }
+  }
+
+  if (node.children && node.children.length > 0) {
+    for (const child of node.children) {
+      getNodeColors(child, colorSet);
+    }
+  }
+}
+
+// Function to analyze contrast between all unique colors across all pages
+function analyzeAllPagesContrast() {
+  console.log("Starting analyzeAllPagesContrast");
+  const colors = getColorsFromAllPages();
+  console.log("Retrieved unique colors:", colors);
+
+  let contrastAnalysis = [];
+
+  if (colors.length < 2) {
+    console.log("Not enough colors found for analysis");
+  } else {
+    for (let i = 0; i < colors.length - 1; i++) {
+      for (let j = i + 1; j < colors.length; j++) {
+        const contrast = calculateContrast(colors[i], colors[j]);
+        contrastAnalysis.push({
+          color1: colors[i],
+          color2: colors[j],
+          contrast: contrast,
+          feedback: contrast >= 4.5 ? "Pass" : "Fail",
+        });
+      }
+    }
+  }
+
+  console.log("Contrast analysis results:", contrastAnalysis);
+
+  const result = {
+    contrastAnalysis,
+    colors,
+  };
+
+  console.log("Final result object:", result);
+  return result;
+}
+
+export { analyzeAllPagesContrast };

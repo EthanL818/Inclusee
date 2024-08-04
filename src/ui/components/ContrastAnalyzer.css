@@ -180,6 +180,7 @@ li {
   display: flex;
   justify-content: center;
   align-items: center;
+  gap: 20px;
 }
 
 /* Style for labels above color blocks */
@@ -195,7 +196,6 @@ li {
   flex-direction: column;
   align-items: center; /* Center the items within the container */
   justify-content: center;
-  margin-right: 20px; /* Space between foreground and background colors */
 }
 
 .color-block {
@@ -247,6 +247,7 @@ li {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
 }
 
 .color-comparison-row:last-child {

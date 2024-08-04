@@ -1,12 +1,15 @@
 import addOnSandboxSdk from "add-on-sdk-document-sandbox";
-import { getColors, analyzeCurrentPageContrast } from "./colorUtil.js";
+import { analyzeAllPagesContrast } from "./colorUtil.js";
 
 const { runtime } = addOnSandboxSdk.instance;
 
 async function start() {
   const sandboxApi = {
-    getColors: getColors,
-    analyzeCurrentPageContrast: analyzeCurrentPageContrast,
+    analyzeAllPagesContrast: async () => {
+      const result = analyzeAllPagesContrast();
+      console.log("Result from analyzeAllPagesContrast:", result);
+      return result;
+    },
   };
 
   runtime.exposeApi(sandboxApi);

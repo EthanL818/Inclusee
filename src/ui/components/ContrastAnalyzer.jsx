@@ -10,10 +10,26 @@ const ContrastAnalyzer = ({ sandboxProxy }) => {
 
   async function analyzeContrast() {
     try {
-      const result = await sandboxProxy.analyzeCurrentPageContrast();
+      console.log("Calling analyzeAllPagesContrast");
+      const result = await sandboxProxy.analyzeAllPagesContrast();
+      console.log("Result from analyzeAllPagesContrast:", result);
+
+      if (!result || typeof result !== "object") {
+        throw new Error("Invalid result from analyzeAllPagesContrast");
+      }
+
+      if (!Array.isArray(result.contrastAnalysis)) {
+        console.error(
+          "Unexpected contrastAnalysis structure:",
+          result.contrastAnalysis
+        );
+        throw new Error("contrastAnalysis is not an array");
+      }
+
       setAnalysisResult(result);
       setError(null);
     } catch (error) {
+      console.error("Error in analyzeContrast:", error);
       setAnalysisResult(null);
       setError(`Error: ${error.message}`);
     }
@@ -47,7 +63,7 @@ const ContrastAnalyzer = ({ sandboxProxy }) => {
     <Theme theme="express" scale="medium" color="light">
       <div className="container">
         <Button className="spectrum-Button" size="m" onClick={analyzeContrast}>
-          Analyze Page Contrast
+          Analyze Contrasts
         </Button>
         {error && (
           <div className="error-message">
@@ -63,7 +79,7 @@ const ContrastAnalyzer = ({ sandboxProxy }) => {
                   <div key={index} className="color-comparison-row">
                     <div className="contrast-ratio">
                       <strong>Contrast Ratio:</strong>{" "}
-                      {item.contrast.toFixed(2)}{" "}
+                      {item.contrast.toFixed(2) + " : 1"}{" "}
                       <span
                         className={`feedback-container ${getFeedbackClass(
                           item.feedback
@@ -78,6 +94,7 @@ const ContrastAnalyzer = ({ sandboxProxy }) => {
                         </div>
                       </span>
                     </div>
+
                     <div className="color-comparison">
                       <div className="color-container">
                         <span className="color-label">Color 1</span>
