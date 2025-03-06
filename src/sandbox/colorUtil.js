@@ -37,7 +37,6 @@ function calculateContrast(color1, color2) {
   return (Math.max(lum1, lum2) + 0.05) / (Math.min(lum1, lum2) + 0.05);
 }
 
-// Function to retrieve all unique colors from all pages
 function getColorsFromAllPages() {
   const colorSet = new Set();
   const doc = editor.documentRoot;
@@ -45,40 +44,65 @@ function getColorsFromAllPages() {
   console.log("Total number of pages:", doc.pages.length);
 
   for (const page of doc.pages) {
-    console.log("processing page");
+    console.log("Processing page");
 
     for (const node of page.allChildren) {
-      console.log(node.type);
-      getNodeColors(node, colorSet);
+      processNodeColors(node, colorSet);
     }
   }
 
-  const uniqueColors = Array.from(colorSet);
-  console.log("Unique colors found:", uniqueColors);
-  return uniqueColors;
+  return Array.from(colorSet);
 }
 
-// Modified function to add colors to a Set instead of an array
-function getNodeColors(node, colorSet) {
-  if (node.fill && node.fill.type === "Color") {
-    const fillColor = node.fill.color;
-    if (fillColor) {
-      const hexColor = rgbaToHex(fillColor);
-      colorSet.add(hexColor);
-    }
-  }
+function processNodeColors(node, colorSet) {
+  console.log("Node type:", node.type);
 
-  if (node.stroke && node.stroke.type === "Color") {
-    const strokeColor = node.stroke.color;
-    if (strokeColor) {
-      const hexColor = rgbaToHex(strokeColor);
-      colorSet.add(hexColor);
-    }
-  }
+  getNodeColors(node, colorSet);
 
   if (node.children && node.children.length > 0) {
     for (const child of node.children) {
-      getNodeColors(child, colorSet);
+      processNodeColors(child, colorSet);
+    }
+  }
+}
+
+function getNodeColors(node, colorSet) {
+  if (node.type === "Text") {
+    const textContentModel = node.fullContent;
+    console.log("Text node content model:", textContentModel);
+
+    const textStyles = textContentModel.characterStyleRanges;
+    console.log("Text node style:", textStyles);
+
+    for (const textStyle of textStyles) {
+      const color = textStyle.color;
+      console.log(color);
+      if (color) {
+        const hexColor = rgbaToHex(color);
+        colorSet.add(hexColor);
+      }
+    }
+  } else {
+    if (node.fill && node.fill.type === "Color") {
+      const fillColor = node.fill.color;
+      if (fillColor) {
+        const hexColor = rgbaToHex(fillColor);
+        colorSet.add(hexColor);
+      }
+    }
+
+    if (node.stroke && node.stroke.type === "Color") {
+      const strokeColor = node.stroke.color;
+      if (strokeColor) {
+        const hexColor = rgbaToHex(strokeColor);
+        colorSet.add(hexColor);
+      }
+    }
+
+    if (node.children && node.children.length > 0) {
+      for (const child of node.children) {
+        getNodeColors(child, colorSet);
+      }
     }
   }
 }
